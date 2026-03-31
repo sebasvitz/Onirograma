@@ -1,22 +1,298 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  /* Onirograma palette */
+  --color-petal: #fbd8e0;
+  --color-mauve: #cf90c1;
+  --color-violet: #8d80b0;
+  --color-periwinkle: #8397c4;
+  --color-powder: #aacbe0;
+  --color-mist: #dde9ef;
+
+  /* Background / surface */
+  --bg: #0c0b10;
+  --bg-surface: #12101a;
+  --bg-card: rgba(255, 255, 255, 0.03);
+
+  /* Text */
+  --text-primary: #dde9ef;
+  --text-secondary: rgba(221, 233, 239, 0.6);
+  --text-muted: rgba(221, 233, 239, 0.3);
+
+  /* Borders */
+  --border: rgba(221, 233, 239, 0.1);
+  --border-hover: rgba(221, 233, 239, 0.2);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* ─── Atmospheric gradient overlays ─────────────────────────────────────── */
+
+.atm-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.atm-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      ellipse 80% 50% at 20% 10%,
+      rgba(207, 144, 193, 0.06) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 80%,
+      rgba(131, 151, 196, 0.07) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.atm-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Cards & surfaces ───────────────────────────────────────────────────── */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ─── Tags ───────────────────────────────────────────────────────────────── */
+
 .tag {
-  @apply inline-block px-2 py-0.5 text-xs rounded-full bg-white/10 text-white/70;
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.7rem;
+  border-radius: 9999px;
+  background: rgba(141, 128, 176, 0.15);
+  color: rgba(203, 183, 240, 0.8);
+  border: 1px solid rgba(141, 128, 176, 0.2);
+  letter-spacing: 0.02em;
+}
+
+/* ─── Color-tinted data pills ────────────────────────────────────────────── */
+
+.pill-petal {
+  @apply inline-block px-2 py-0.5 rounded-full text-xs;
+  background: rgba(251, 216, 224, 0.12);
+  color: #fbd8e0;
+  border: 1px solid rgba(251, 216, 224, 0.2);
+}
+
+.pill-mauve {
+  @apply inline-block px-2 py-0.5 rounded-full text-xs;
+  background: rgba(207, 144, 193, 0.12);
+  color: #cf90c1;
+  border: 1px solid rgba(207, 144, 193, 0.2);
+}
+
+.pill-powder {
+  @apply inline-block px-2 py-0.5 rounded-full text-xs;
+  background: rgba(170, 203, 224, 0.12);
+  color: #aacbe0;
+  border: 1px solid rgba(170, 203, 224, 0.2);
+}
+
+/* ─── Glowing accent lines ───────────────────────────────────────────────── */
+
+.glow-mauve {
+  box-shadow: 0 0 24px -4px rgba(207, 144, 193, 0.25);
+}
+
+.glow-violet {
+  box-shadow: 0 0 24px -4px rgba(141, 128, 176, 0.25);
+}
+
+/* ─── Form inputs ────────────────────────────────────────────────────────── */
+
+.input-field {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+.input-field:focus {
+  border-color: rgba(141, 128, 176, 0.5);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  background: var(--color-mist);
+  color: #0c0b10;
+  transition: opacity 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: transparent;
+  transition: border-color 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* ─── Section dividers ───────────────────────────────────────────────────── */
+
+.section-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* ─── Spatial nav portal ─────────────────────────────────────────────────── */
+
+.portal-link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  transition: border-color 0.3s, transform 0.3s;
+  cursor: pointer;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.portal-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.portal-link:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+.portal-link:hover::after {
+  opacity: 1;
+}
+
+.portal-link.portal-record::after {
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    rgba(207, 144, 193, 0.08),
+    transparent 70%
+  );
+}
+
+.portal-link.portal-archive::after {
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    rgba(131, 151, 196, 0.08),
+    transparent 70%
+  );
+}
+
+/* ─── Fade-in animation ──────────────────────────────────────────────────── */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.5s ease forwards;
+}
+
+.fade-up-delay-1 {
+  animation: fadeUp 0.5s 0.1s ease both;
+}
+
+.fade-up-delay-2 {
+  animation: fadeUp 0.5s 0.2s ease both;
+}
+
+.fade-up-delay-3 {
+  animation: fadeUp 0.5s 0.3s ease both;
 }
 
