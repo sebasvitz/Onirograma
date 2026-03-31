@@ -38,7 +38,7 @@ export default async function CasesPage() {
   const cases = await getCases();
 
   return (
-    <div className="atm-bg min-h-[calc(100vh-7rem)]">
+    <div className="atm-bg" style={{ minHeight: "100vh", paddingTop: "3.5rem" }}>
       <div className="max-w-5xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="fade-up mb-10">

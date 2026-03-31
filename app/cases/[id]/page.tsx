@@ -43,7 +43,7 @@ export default async function CaseDetailPage({
   });
 
   return (
-    <div className="atm-bg min-h-[calc(100vh-7rem)]">
+    <div className="atm-bg" style={{ minHeight: "100vh", paddingTop: "3.5rem" }}>
       <div className="max-w-3xl mx-auto px-6 py-12">
 
         {/* Breadcrumb */}
