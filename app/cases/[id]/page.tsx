@@ -11,6 +11,19 @@ async function getCase(id: string): Promise<OniricCase | null> {
   }
 }
 
+const SECTION_ACCENTS: Record<string, string> = {
+  "Input original": "var(--color-mist)",
+  "Estructura espacial": "var(--color-powder)",
+  "Dinámicas espaciales": "var(--color-mauve)",
+  "Luz": "var(--color-petal)",
+  "Materialidad": "var(--color-periwinkle)",
+  "Corporalidad": "var(--color-violet)",
+  "Emoción dominante": "var(--color-mauve)",
+  "Recorrido": "var(--color-periwinkle)",
+  "Elementos espaciales": "var(--color-powder)",
+  "Traducción espacial": "var(--color-mist)",
+};
+
 export default async function CaseDetailPage({
   params,
 }: {
@@ -30,171 +43,241 @@ export default async function CaseDetailPage({
   });
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12">
-      <div className="mb-6 flex items-center gap-3">
-        <Link
-          href="/cases"
-          className="text-sm text-white/40 hover:text-white/60 transition-colors"
-        >
-          ← Archivo
-        </Link>
-        <span className="text-white/20">/</span>
-        <span className="text-sm text-white/40 font-mono">{id.slice(0, 8)}…</span>
-      </div>
+    <div className="atm-bg min-h-[calc(100vh-7rem)]">
+      <div className="max-w-3xl mx-auto px-6 py-12">
 
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-xs px-2 py-0.5 rounded-full border border-white/10 text-white/40 uppercase tracking-widest">
-            {caso.input.tipo}
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 mb-8 fade-up" style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+          <Link href="/cases" className="hover:opacity-70 transition-opacity" style={{ color: "var(--text-secondary)" }}>
+            ← Biblioteca
+          </Link>
+          <span style={{ opacity: 0.3 }}>/</span>
+          <span style={{ fontFamily: "monospace", fontSize: "0.75rem" }}>
+            {id.slice(0, 8)}…
           </span>
-          <span className="text-xs text-white/30">{date}</span>
         </div>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {caso.keywords.map((kw) => (
-            <span key={kw} className="tag">{kw}</span>
-          ))}
-        </div>
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.03]">
-          <div className="text-xs text-white/40 uppercase tracking-widest mb-2">Resumen</div>
-          <p className="text-sm text-white/80 leading-relaxed">{caso.resumen}</p>
-        </div>
-      </div>
 
-      {/* Input original */}
-      {(caso.input.texto_original || caso.input.transcripcion) && (
-        <Section title="Input original">
-          {caso.input.texto_original && (
-            <SubSection label="Texto escrito">
-              <p className="text-sm text-white/60 leading-relaxed whitespace-pre-wrap">
-                {caso.input.texto_original}
-              </p>
-            </SubSection>
-          )}
-          {caso.input.transcripcion && (
-            <SubSection label="Transcripción de audio">
-              <p className="text-sm text-white/60 leading-relaxed whitespace-pre-wrap">
-                {caso.input.transcripcion}
-              </p>
-            </SubSection>
-          )}
-        </Section>
-      )}
-
-      {/* Estructura espacial */}
-      <Section title="Estructura espacial">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <DataCell label="Tipo" value={caso.estructura_espacial.tipo} />
-          <DataCell label="Naturaleza" value={caso.estructura_espacial.naturaleza} />
-          <DataCell label="Límites" value={caso.estructura_espacial.limites} />
-          <DataCell label="Escala" value={caso.estructura_espacial.escala} />
-          <DataCell label="Organización" value={caso.estructura_espacial.organizacion} />
-        </div>
-      </Section>
-
-      {/* Dinámicas */}
-      <Section title="Dinámicas espaciales">
-        <div className="flex flex-wrap gap-2">
-          {caso.dinamicas.map((d) => (
-            <span key={d} className="px-3 py-1 rounded-full border border-white/15 text-sm text-white/70">
-              {d}
+        {/* Hero header */}
+        <div className="fade-up mb-10">
+          <div className="flex items-center gap-3 mb-5">
+            <span
+              className="px-2 py-0.5 rounded-full uppercase"
+              style={{
+                fontSize: "0.65rem",
+                letterSpacing: "0.12em",
+                border: "1px solid var(--border)",
+                color: "var(--text-muted)",
+              }}
+            >
+              {caso.input.tipo}
             </span>
-          ))}
-        </div>
-      </Section>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{date}</span>
+          </div>
 
-      {/* Luz */}
-      <Section title="Luz">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <DataCell label="Intensidad" value={caso.luz.intensidad} />
-          <DataCell label="Tipo" value={caso.luz.tipo} />
-          <DataCell label="Temperatura" value={caso.luz.temperatura} />
-          <DataCell label="Comportamiento" value={caso.luz.comportamiento} />
-          <DataCell label="Origen" value={caso.luz.origen} />
-        </div>
-      </Section>
-
-      {/* Materialidad */}
-      <Section title="Materialidad">
-        <div className="flex flex-wrap gap-2">
-          {caso.materialidad.map((m) => (
-            <span key={m} className="px-3 py-1 rounded-full border border-white/15 text-sm text-white/70">
-              {m}
-            </span>
-          ))}
-        </div>
-      </Section>
-
-      {/* Corporalidad */}
-      <Section title="Corporalidad">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <DataCell label="Estado" value={caso.corporalidad.estado} />
-          <DataCell label="Gravedad" value={caso.corporalidad.gravedad} />
-          <DataCell label="Sensación" value={caso.corporalidad.sensacion} />
-          <DataCell label="Control" value={caso.corporalidad.control} />
-          <DataCell label="Presencia" value={caso.corporalidad.presencia} />
-        </div>
-      </Section>
-
-      {/* Emoción */}
-      <Section title="Emoción dominante">
-        <div className="grid grid-cols-2 gap-3">
-          <DataCell label="Principal" value={caso.emocion.principal} />
-          <DataCell label="Clima afectivo" value={caso.emocion.clima_afectivo} />
-        </div>
-      </Section>
-
-      {/* Recorrido */}
-      <Section title="Recorrido">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <DataCell label="Tipo" value={caso.recorrido.tipo} />
-          <DataCell label="Continuidad" value={caso.recorrido.continuidad} />
-          <DataCell label="Dirección" value={caso.recorrido.direccion} />
-          <DataCell label="Lógica" value={caso.recorrido.logica} />
-        </div>
-      </Section>
-
-      {/* Elementos espaciales */}
-      {caso.elementos_espaciales.length > 0 && (
-        <Section title="Elementos espaciales relevantes">
-          <ul className="space-y-1">
-            {caso.elementos_espaciales.map((el) => (
-              <li key={el} className="text-sm text-white/60 flex items-start gap-2">
-                <span className="text-white/20 mt-0.5">·</span>
-                {el}
-              </li>
+          <div className="flex flex-wrap gap-2 mb-5">
+            {caso.keywords.map((kw) => (
+              <span key={kw} className="tag">{kw}</span>
             ))}
-          </ul>
+          </div>
+
+          <div
+            className="p-5 rounded-2xl"
+            style={{
+              border: "1px solid rgba(221,233,239,0.1)",
+              background: "rgba(221,233,239,0.03)",
+            }}
+          >
+            <div className="section-label mb-2" style={{ color: "var(--color-mist)" }}>
+              Resumen
+            </div>
+            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.7 }}>
+              {caso.resumen}
+            </p>
+          </div>
+        </div>
+
+        {/* Input original */}
+        {(caso.input.texto_original || caso.input.transcripcion) && (
+          <Section title="Input original">
+            {caso.input.texto_original && (
+              <SubSection label="Texto escrito">
+                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+                  {caso.input.texto_original}
+                </p>
+              </SubSection>
+            )}
+            {caso.input.transcripcion && (
+              <SubSection label="Transcripción de narración">
+                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+                  {caso.input.transcripcion}
+                </p>
+              </SubSection>
+            )}
+          </Section>
+        )}
+
+        {/* Estructura espacial */}
+        <Section title="Estructura espacial">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <DataCell label="Tipo" value={caso.estructura_espacial.tipo} accent="var(--color-powder)" />
+            <DataCell label="Naturaleza" value={caso.estructura_espacial.naturaleza} accent="var(--color-powder)" />
+            <DataCell label="Límites" value={caso.estructura_espacial.limites} accent="var(--color-powder)" />
+            <DataCell label="Escala" value={caso.estructura_espacial.escala} accent="var(--color-powder)" />
+            <DataCell label="Organización" value={caso.estructura_espacial.organizacion} accent="var(--color-powder)" />
+          </div>
         </Section>
-      )}
 
-      {/* Traducción espacial */}
-      <Section title="Traducción espacial">
-        <div className="p-4 rounded-xl border border-white/15 bg-white/[0.04] mb-4">
-          <div className="text-xs text-white/40 uppercase tracking-widest mb-2">Potencial</div>
-          <p className="text-sm text-white/80 leading-relaxed">
-            {caso.traduccion_espacial.potencial}
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {Object.entries(caso.traduccion_espacial.estrategias).map(([k, v]) => (
-            <DataCell key={k} label={k.charAt(0).toUpperCase() + k.slice(1)} value={v} />
-          ))}
-        </div>
-      </Section>
+        {/* Dinámicas */}
+        <Section title="Dinámicas espaciales">
+          <div className="flex flex-wrap gap-2">
+            {caso.dinamicas.map((d) => (
+              <span
+                key={d}
+                className="px-3 py-1 rounded-full text-sm"
+                style={{
+                  border: "1px solid rgba(207,144,193,0.25)",
+                  background: "rgba(207,144,193,0.07)",
+                  color: "var(--color-mauve)",
+                }}
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+        </Section>
 
-      {/* JSON raw */}
-      <details className="mt-8">
-        <summary className="text-xs text-white/30 cursor-pointer hover:text-white/50 transition-colors">
-          Ver JSON completo
-        </summary>
-        <pre className="mt-3 p-4 rounded-xl border border-white/10 bg-white/[0.02] text-xs text-white/50 overflow-auto">
-          {JSON.stringify(caso, null, 2)}
-        </pre>
-      </details>
+        {/* Luz */}
+        <Section title="Luz">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <DataCell label="Intensidad" value={caso.luz.intensidad} accent="var(--color-petal)" />
+            <DataCell label="Tipo" value={caso.luz.tipo} accent="var(--color-petal)" />
+            <DataCell label="Temperatura" value={caso.luz.temperatura} accent="var(--color-petal)" />
+            <DataCell label="Comportamiento" value={caso.luz.comportamiento} accent="var(--color-petal)" />
+            <DataCell label="Origen" value={caso.luz.origen} accent="var(--color-petal)" />
+          </div>
+        </Section>
+
+        {/* Materialidad */}
+        <Section title="Materialidad">
+          <div className="flex flex-wrap gap-2">
+            {caso.materialidad.map((m) => (
+              <span
+                key={m}
+                className="px-3 py-1 rounded-full text-sm"
+                style={{
+                  border: "1px solid rgba(131,151,196,0.25)",
+                  background: "rgba(131,151,196,0.07)",
+                  color: "var(--color-periwinkle)",
+                }}
+              >
+                {m}
+              </span>
+            ))}
+          </div>
+        </Section>
+
+        {/* Corporalidad */}
+        <Section title="Corporalidad">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <DataCell label="Estado" value={caso.corporalidad.estado} accent="var(--color-violet)" />
+            <DataCell label="Gravedad" value={caso.corporalidad.gravedad} accent="var(--color-violet)" />
+            <DataCell label="Sensación" value={caso.corporalidad.sensacion} accent="var(--color-violet)" />
+            <DataCell label="Control" value={caso.corporalidad.control} accent="var(--color-violet)" />
+            <DataCell label="Presencia" value={caso.corporalidad.presencia} accent="var(--color-violet)" />
+          </div>
+        </Section>
+
+        {/* Emoción */}
+        <Section title="Emoción dominante">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <DataCell label="Principal" value={caso.emocion.principal} accent="var(--color-mauve)" />
+            <DataCell label="Clima afectivo" value={caso.emocion.clima_afectivo} accent="var(--color-mauve)" />
+          </div>
+        </Section>
+
+        {/* Recorrido */}
+        <Section title="Recorrido">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <DataCell label="Tipo" value={caso.recorrido.tipo} accent="var(--color-periwinkle)" />
+            <DataCell label="Continuidad" value={caso.recorrido.continuidad} accent="var(--color-periwinkle)" />
+            <DataCell label="Dirección" value={caso.recorrido.direccion} accent="var(--color-periwinkle)" />
+            <DataCell label="Lógica" value={caso.recorrido.logica} accent="var(--color-periwinkle)" />
+          </div>
+        </Section>
+
+        {/* Elementos espaciales */}
+        {caso.elementos_espaciales.length > 0 && (
+          <Section title="Elementos espaciales relevantes">
+            <ul className="space-y-1">
+              {caso.elementos_espaciales.map((el) => (
+                <li
+                  key={el}
+                  className="flex items-start gap-2"
+                  style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}
+                >
+                  <span style={{ color: "var(--color-powder)", marginTop: "0.1rem" }}>·</span>
+                  {el}
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        {/* Traducción espacial */}
+        <Section title="Traducción espacial">
+          <div
+            className="p-5 rounded-2xl mb-4"
+            style={{
+              border: "1px solid rgba(221,233,239,0.12)",
+              background: "rgba(221,233,239,0.04)",
+            }}
+          >
+            <div className="section-label mb-2" style={{ color: "var(--color-mist)" }}>
+              Potencial de traducción
+            </div>
+            <p style={{ fontSize: "0.9rem", color: "var(--text-primary)", lineHeight: 1.7 }}>
+              {caso.traduccion_espacial.potencial}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {Object.entries(caso.traduccion_espacial.estrategias).map(([k, v]) => (
+              <DataCell
+                key={k}
+                label={k.charAt(0).toUpperCase() + k.slice(1)}
+                value={v}
+                accent="var(--color-mist)"
+              />
+            ))}
+          </div>
+        </Section>
+
+        {/* JSON raw */}
+        <details className="mt-10">
+          <summary
+            className="cursor-pointer transition-colors"
+            style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}
+          >
+            Ver datos completos (JSON)
+          </summary>
+          <pre
+            className="mt-3 p-4 rounded-xl overflow-auto"
+            style={{
+              border: "1px solid var(--border)",
+              background: "rgba(255,255,255,0.02)",
+              fontSize: "0.72rem",
+              color: "var(--text-secondary)",
+              lineHeight: 1.6,
+            }}
+          >
+            {JSON.stringify(caso, null, 2)}
+          </pre>
+        </details>
+      </div>
     </div>
   );
 }
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function Section({
   title,
@@ -203,11 +286,15 @@ function Section({
   title: string;
   children: React.ReactNode;
 }) {
+  const accent = SECTION_ACCENTS[title] ?? "var(--color-mist)";
   return (
-    <div className="mb-6">
-      <h2 className="text-xs font-medium text-white/40 uppercase tracking-widest mb-3">
+    <div className="mb-8">
+      <div
+        className="section-label mb-3"
+        style={{ color: accent }}
+      >
         {title}
-      </h2>
+      </div>
       {children}
     </div>
   );
@@ -221,18 +308,38 @@ function SubSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-3">
-      <div className="text-xs text-white/30 mb-1">{label}</div>
+    <div className="mb-4">
+      <div className="section-label mb-1">{label}</div>
       {children}
     </div>
   );
 }
 
-function DataCell({ label, value }: { label: string; value: string }) {
+function DataCell({
+  label,
+  value,
+  accent = "var(--color-mist)",
+}: {
+  label: string;
+  value: string;
+  accent?: string;
+}) {
   return (
-    <div className="p-3 rounded-lg border border-white/8 bg-white/[0.02]">
-      <div className="text-xs text-white/30 mb-1">{label}</div>
-      <div className="text-sm text-white/80">{value}</div>
+    <div
+      className="p-3 rounded-xl"
+      style={{
+        border: "1px solid var(--border)",
+        background: "rgba(255,255,255,0.02)",
+      }}
+    >
+      <div
+        className="section-label mb-1"
+        style={{ color: accent, opacity: 0.7 }}
+      >
+        {label}
+      </div>
+      <div style={{ fontSize: "0.85rem", color: "var(--text-primary)" }}>{value}</div>
     </div>
   );
 }
+
