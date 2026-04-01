@@ -3,7 +3,7 @@ import { getAllCases } from "@/lib/db";
 
 export async function GET() {
   try {
-    const cases = getAllCases();
+    const cases = await getAllCases();
     return NextResponse.json(cases);
   } catch {
     return NextResponse.json(

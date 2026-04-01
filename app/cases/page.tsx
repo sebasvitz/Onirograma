@@ -4,7 +4,7 @@ import type { OniricCase } from "@/types";
 async function getCases(): Promise<OniricCase[]> {
   try {
     const { getAllCases } = await import("@/lib/db");
-    return getAllCases();
+    return await getAllCases();
   } catch {
     return [];
   }

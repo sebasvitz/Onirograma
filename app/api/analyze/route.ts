@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { analyzeOniricInputRules } from "@/lib/analyzer-rules";
 import { saveCase } from "@/lib/db";
+import { supabase } from "@/lib/supabase";
 import type { OniricCase, InputType } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -24,9 +25,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (imagenFile && imagenFile.size > 0) {
-      const buffer = Buffer.from(await imagenFile.arrayBuffer());
-      const base64 = buffer.toString("base64");
-      referencias_visuales.push(`data:${imagenFile.type};base64,${base64}`);
+      const arrayBuffer = await imagenFile.arrayBuffer();
+      const ext = imagenFile.name.split(".").pop() ?? "bin";
+      const fileName = `${uuidv4()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("dream-images")
+        .upload(fileName, arrayBuffer, { contentType: imagenFile.type });
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage
+          .from("dream-images")
+          .getPublicUrl(fileName);
+        referencias_visuales.push(urlData.publicUrl);
+      }
       if (!hasAudio && !texto && !transcripcion) inputType = "imagen";
       else inputType = "mixto";
     }
@@ -68,7 +78,7 @@ export async function POST(request: NextRequest) {
       ...analysis,
     };
 
-    saveCase(oniricCase);
+    await saveCase(oniricCase);
 
     return NextResponse.json(oniricCase, { status: 201 });
   } catch (err) {

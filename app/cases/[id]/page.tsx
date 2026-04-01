@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import type { OniricCase } from "@/types";
 
 async function getCase(id: string): Promise<OniricCase | null> {
   try {
     const { getCaseById } = await import("@/lib/db");
-    return getCaseById(id);
+    return await getCaseById(id);
   } catch {
     return null;
   }
@@ -94,6 +95,28 @@ export default async function CaseDetailPage({
             </p>
           </div>
         </div>
+
+        {/* Referencias visuales */}
+        {caso.input.referencias_visuales && caso.input.referencias_visuales.length > 0 && (
+          <Section title="Referencias visuales">
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              {caso.input.referencias_visuales.map((url, i) => (
+                <Image
+                  key={url}
+                  src={url}
+                  alt={`Referencia visual ${i + 1}`}
+                  width={200}
+                  height={200}
+                  style={{
+                    objectFit: "cover",
+                    borderRadius: "0.75rem",
+                    border: "1px solid var(--border)",
+                  }}
+                />
+              ))}
+            </div>
+          </Section>
+        )}
 
         {/* Input original */}
         {(caso.input.texto_original || caso.input.transcripcion) && (
