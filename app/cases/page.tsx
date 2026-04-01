@@ -94,7 +94,7 @@ export default async function CasesPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 fade-up-delay-1">
+          <div className="depth-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-3 fade-up-delay-1">
             {cases.map((c, i) => (
               <CaseCard
                 key={c.id}
@@ -121,7 +121,7 @@ function CaseCard({ caso, index }: { caso: OniricCase; index: number }) {
   return (
     <Link
       href={`/cases/${caso.id}`}
-      className="group card block p-5"
+      className="case-card block"
       style={{
         animationDelay: `${index * 0.05}s`,
         borderLeftColor: accent,

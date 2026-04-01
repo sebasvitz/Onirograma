@@ -133,17 +133,7 @@ function LandingSection({ onNavigate }: { onNavigate: (i: number) => void }) {
           Sistema de cartografía onírica
         </div>
 
-        <h1
-          className="fade-up-delay-1"
-          style={{
-            fontSize: "clamp(3.5rem, 8vw, 6.5rem)",
-            fontWeight: 100,
-            letterSpacing: "-0.04em",
-            lineHeight: 0.95,
-            color: "var(--color-mist)",
-            marginBottom: "1.5rem",
-          }}
-        >
+        <h1 className="hero-title fade-up-delay-1">
           Oniro
           <br />
           grama
@@ -498,6 +488,7 @@ function LibrarySection({ onRegister }: { onRegister: () => void }) {
           </div>
         ) : (
           <div
+            className="depth-grid"
             style={{
               display: "grid",
               gap: "0.875rem",
@@ -515,14 +506,11 @@ function LibrarySection({ onRegister }: { onRegister: () => void }) {
                 <Link
                   key={c.id}
                   href={`/cases/${c.id}`}
-                  className="card fade-up"
+                  className="case-card fade-up"
                   style={{
-                    display: "block",
-                    padding: "1.1rem 1.25rem",
                     animationDelay: `${i * 0.05}s`,
                     borderLeftColor: accent,
                     borderLeftWidth: "2px",
-                    textDecoration: "none",
                   }}
                 >
                   <div
@@ -1009,16 +997,7 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
                     color: "var(--color-petal)",
                   }}
                 >
-                  <span
-                    style={{
-                      width: "7px",
-                      height: "7px",
-                      borderRadius: "50%",
-                      background: "var(--color-petal)",
-                      display: "inline-block",
-                      animation: "pulse 1.5s infinite",
-                    }}
-                  />
+                  <span className="record-dot" />
                   Detener grabación
                 </button>
               )}

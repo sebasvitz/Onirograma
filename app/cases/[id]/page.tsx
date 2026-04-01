@@ -45,7 +45,6 @@ export default async function CaseDetailPage({
   return (
     <div className="atm-bg" style={{ minHeight: "100vh", paddingTop: "3.5rem" }}>
       <div className="max-w-3xl mx-auto px-6 py-12">
-
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-8 fade-up" style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
           <Link href="/cases" className="hover:opacity-70 transition-opacity" style={{ color: "var(--text-secondary)" }}>
@@ -288,7 +287,7 @@ function Section({
 }) {
   const accent = SECTION_ACCENTS[title] ?? "var(--color-mist)";
   return (
-    <div className="mb-8">
+    <div className="detail-section mb-6">
       <div
         className="section-label mb-3"
         style={{ color: accent }}
@@ -325,16 +324,10 @@ function DataCell({
   accent?: string;
 }) {
   return (
-    <div
-      className="p-3 rounded-xl"
-      style={{
-        border: "1px solid var(--border)",
-        background: "rgba(255,255,255,0.02)",
-      }}
-    >
+    <div className="data-cell">
       <div
         className="section-label mb-1"
-        style={{ color: accent, opacity: 0.7 }}
+        style={{ color: accent, opacity: 0.75 }}
       >
         {label}
       </div>
