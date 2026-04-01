@@ -9,7 +9,6 @@ type CaseRow = {
   created_at: string;
   input_tipo: string;
   texto_original: string | null;
-  transcripcion: string | null;
   referencias_visuales: string[] | null;
   resumen: string;
   estructura_espacial: OniricCase["estructura_espacial"];
@@ -31,7 +30,6 @@ function rowToCase(row: CaseRow): OniricCase {
     input: {
       tipo: row.input_tipo as OniricCase["input"]["tipo"],
       texto_original: row.texto_original ?? undefined,
-      transcripcion: row.transcripcion ?? undefined,
       referencias_visuales: row.referencias_visuales ?? undefined,
     },
     resumen: row.resumen,
@@ -54,7 +52,6 @@ function caseToRow(c: OniricCase): Omit<CaseRow, "created_at"> & { created_at: s
     created_at: c.created_at,
     input_tipo: c.input.tipo,
     texto_original: c.input.texto_original ?? null,
-    transcripcion: c.input.transcripcion ?? null,
     referencias_visuales: c.input.referencias_visuales ?? null,
     resumen: c.resumen,
     estructura_espacial: c.estructura_espacial,

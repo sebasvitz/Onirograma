@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import type { OniricCase } from "@/types";
+import DeleteCaseButton from "@/components/DeleteCaseButton";
 
 async function getCase(id: string): Promise<OniricCase | null> {
   try {
@@ -55,6 +56,8 @@ export default async function CaseDetailPage({
           <span style={{ fontFamily: "monospace", fontSize: "0.75rem" }}>
             {id.slice(0, 8)}…
           </span>
+          <span style={{ flex: 1 }} />
+          <DeleteCaseButton id={id} />
         </div>
 
         {/* Hero header */}
@@ -119,22 +122,13 @@ export default async function CaseDetailPage({
         )}
 
         {/* Input original */}
-        {(caso.input.texto_original || caso.input.transcripcion) && (
+        {caso.input.texto_original && (
           <Section title="Input original">
-            {caso.input.texto_original && (
-              <SubSection label="Texto escrito">
-                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-                  {caso.input.texto_original}
-                </p>
-              </SubSection>
-            )}
-            {caso.input.transcripcion && (
-              <SubSection label="Transcripción de narración">
-                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-                  {caso.input.transcripcion}
-                </p>
-              </SubSection>
-            )}
+            <SubSection label="Texto escrito">
+              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+                {caso.input.texto_original}
+              </p>
+            </SubSection>
           </Section>
         )}
 

@@ -7,19 +7,6 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { OniricCase } from "@/types";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type RecordingState = "idle" | "recording" | "stopped";
-
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    SpeechRecognition: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    webkitSpeechRecognition: any;
-  }
-}
-
 // Three.js background — loaded only on client to avoid SSR issues
 const ThreeBackground = dynamic(() => import("@/components/ThreeBackground"), {
   ssr: false,
@@ -600,108 +587,12 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
   const router = useRouter();
 
   const [texto, setTexto] = useState("");
-  const [transcripcion, setTranscripcion] = useState("");
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [imagenFile, setImagenFile] = useState<File | null>(null);
   const [imagenUrl, setImagenUrl] = useState("");
   const [imagenPreview, setImagenPreview] = useState<string | null>(null);
-  const [recordingState, setRecordingState] = useState<RecordingState>("idle");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<OniricCase | null>(null);
-  const [speechSupported, setSpeechSupported] = useState(false);
-  const [liveTranscript, setLiveTranscript] = useState("");
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
-  const finalTranscriptRef = useRef("");
-
-  useEffect(() => {
-    const SpeechRecognitionAPI =
-      window.SpeechRecognition ?? window.webkitSpeechRecognition;
-    setSpeechSupported(!!SpeechRecognitionAPI);
-  }, []);
-
-  const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, {
-        mimeType: MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "audio/ogg",
-      });
-      chunksRef.current = [];
-      recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
-      recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType });
-        setAudioBlob(blob);
-        setAudioUrl(URL.createObjectURL(blob));
-        stream.getTracks().forEach((t) => t.stop());
-      };
-      mediaRecorderRef.current = recorder;
-      recorder.start();
-      setRecordingState("recording");
-      finalTranscriptRef.current = "";
-
-      if (speechSupported) {
-        const SpeechRecognitionAPI =
-          window.SpeechRecognition ?? window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognitionAPI();
-        recognition.lang = "es-ES";
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        recognition.onresult = (event: any) => {
-          let interimText = "";
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const r = event.results[i];
-            if (r.isFinal) {
-              finalTranscriptRef.current += r[0].transcript + " ";
-            } else {
-              interimText += r[0].transcript;
-            }
-          }
-          setLiveTranscript(finalTranscriptRef.current + interimText);
-        };
-
-        recognition.onerror = (e: { error: string }) => {
-          if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-            setError(
-              "El micrófono no tiene permiso para usar el reconocimiento de voz automático. Escribe la transcripción manualmente."
-            );
-          }
-        };
-
-        recognition.start();
-        recognitionRef.current = recognition;
-      }
-    } catch {
-      setError("No se pudo acceder al micrófono. Verifica los permisos.");
-    }
-  }, [speechSupported]);
-
-  const stopRecording = useCallback(() => {
-    mediaRecorderRef.current?.stop();
-    recognitionRef.current?.stop();
-    setRecordingState("stopped");
-    setTimeout(() => {
-      const final = finalTranscriptRef.current.trim();
-      if (final) setTranscripcion(final);
-      setLiveTranscript("");
-    }, 300);
-  }, []);
-
-  const clearRecording = useCallback(() => {
-    setAudioBlob(null);
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
-    setAudioUrl(null);
-    setRecordingState("idle");
-    setTranscripcion("");
-    setLiveTranscript("");
-    finalTranscriptRef.current = "";
-  }, [audioUrl]);
 
   const handleImagenFile = (file: File) => {
     setImagenFile(file);
@@ -714,25 +605,15 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
     e.preventDefault();
     setError(null);
 
-    if (!texto.trim() && !transcripcion.trim()) {
-      if (recordingState === "recording") {
-        setError("Detén la grabación antes de enviar.");
-      } else if (audioBlob) {
-        setError(
-          "La narración fue grabada pero la transcripción automática no está disponible. Por favor escribe el contenido en el campo de transcripción."
-        );
-      } else {
-        setError("Debes proporcionar al menos texto o una narración.");
-      }
+    if (!texto.trim()) {
+      setError("Debes proporcionar al menos el relato del sueño.");
       return;
     }
 
     setLoading(true);
     try {
       const fd = new FormData();
-      if (texto.trim()) fd.append("texto", texto.trim());
-      if (transcripcion.trim()) fd.append("transcripcion", transcripcion.trim());
-      if (audioBlob) fd.append("hasAudio", "true");
+      fd.append("texto", texto.trim());
       if (imagenFile) fd.append("imagen", imagenFile);
       if (imagenUrl.trim()) fd.append("imagenUrl", imagenUrl.trim());
 
@@ -754,17 +635,10 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
   const handleNewRegistro = () => {
     setResult(null);
     setTexto("");
-    setTranscripcion("");
-    setAudioBlob(null);
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
-    setAudioUrl(null);
     setImagenFile(null);
     setImagenPreview(null);
     setImagenUrl("");
-    setRecordingState("idle");
     setError(null);
-    setLiveTranscript("");
-    finalTranscriptRef.current = "";
   };
 
   // ── Result view ────────────────────────────────────────────────────────────
@@ -956,141 +830,6 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
               className="input-field"
               style={{ resize: "none" }}
             />
-          </div>
-
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                fontSize: "0.78rem",
-                fontWeight: 500,
-                color: "var(--text-secondary)",
-              }}
-            >
-              Narración oral{" "}
-              <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(opcional)</span>
-            </label>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.65rem" }}>
-              {recordingState === "idle" && (
-                <button
-                  type="button"
-                  onClick={startRecording}
-                  className="btn-ghost"
-                  style={{ fontSize: "0.78rem" }}
-                >
-                  <span
-                    style={{
-                      width: "7px",
-                      height: "7px",
-                      borderRadius: "50%",
-                      background: "var(--color-mauve)",
-                      display: "inline-block",
-                    }}
-                  />
-                  Grabar narración
-                </button>
-              )}
-
-              {recordingState === "recording" && (
-                <button
-                  type="button"
-                  onClick={stopRecording}
-                  className="btn-ghost"
-                  style={{
-                    fontSize: "0.78rem",
-                    borderColor: "rgba(251,216,224,0.3)",
-                    color: "var(--color-petal)",
-                  }}
-                >
-                  <span className="record-dot" />
-                  Detener grabación
-                </button>
-              )}
-
-              {recordingState === "stopped" && audioUrl && (
-                <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flex: 1 }}>
-                  <audio src={audioUrl} controls style={{ height: "2rem", flex: 1 }} />
-                  <button
-                    type="button"
-                    onClick={clearRecording}
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--text-muted)",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {recordingState === "recording" && speechSupported && (
-              <div
-                style={{
-                  padding: "0.75rem",
-                  borderRadius: "0.75rem",
-                  background: "rgba(207,144,193,0.07)",
-                  border: "1px solid rgba(207,144,193,0.15)",
-                  color: "var(--text-secondary)",
-                  fontSize: "0.75rem",
-                  lineHeight: 1.6,
-                  minHeight: "2.5rem",
-                  marginBottom: "0.65rem",
-                }}
-              >
-                <span style={{ color: "var(--color-mauve)", marginRight: "0.4rem" }}>●</span>
-                {liveTranscript || "Transcribiendo..."}
-              </div>
-            )}
-
-            {recordingState === "idle" && (
-              <div style={{ marginBottom: "0.65rem" }}>
-                <label
-                  style={{ display: "block", marginBottom: "0.3rem", fontSize: "0.68rem", color: "var(--text-muted)" }}
-                >
-                  O sube un archivo de audio (mp3, wav, webm, m4a)
-                </label>
-                <input
-                  type="file"
-                  accept="audio/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setAudioBlob(file);
-                      setAudioUrl(URL.createObjectURL(file));
-                      setRecordingState("stopped");
-                    }
-                  }}
-                  style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}
-                />
-              </div>
-            )}
-
-            {(recordingState === "stopped" || transcripcion) && (
-              <div>
-                <label
-                  style={{ display: "block", marginBottom: "0.3rem", fontSize: "0.68rem", color: "var(--text-muted)" }}
-                >
-                  Transcripción{" "}
-                  {speechSupported
-                    ? "(capturada automáticamente — puedes editar)"
-                    : "(escribe aquí el contenido de la grabación para el análisis)"}
-                </label>
-                <textarea
-                  value={transcripcion}
-                  onChange={(e) => setTranscripcion(e.target.value)}
-                  rows={3}
-                  placeholder="Transcripción del audio..."
-                  className="input-field"
-                  style={{ fontSize: "0.78rem", resize: "none" }}
-                />
-              </div>
-            )}
           </div>
 
           <div>

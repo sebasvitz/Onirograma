@@ -10,19 +10,11 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     const texto = (formData.get("texto") as string | null)?.trim() ?? "";
-    // transcripcion: provided by browser Web Speech API on the client side
-    const transcripcion =
-      (formData.get("transcripcion") as string | null)?.trim() ?? "";
     const imagenFile = formData.get("imagen") as File | null;
     const imagenUrl = (formData.get("imagenUrl") as string | null)?.trim() ?? "";
-    const hasAudio = (formData.get("hasAudio") as string | null) === "true";
 
     let inputType: InputType = "texto";
     const referencias_visuales: string[] = [];
-
-    if (hasAudio) {
-      inputType = texto || transcripcion ? "mixto" : "audio";
-    }
 
     if (imagenFile && imagenFile.size > 0) {
       const arrayBuffer = await imagenFile.arrayBuffer();
@@ -37,41 +29,29 @@ export async function POST(request: NextRequest) {
           .getPublicUrl(fileName);
         referencias_visuales.push(urlData.publicUrl);
       }
-      if (!hasAudio && !texto && !transcripcion) inputType = "imagen";
-      else inputType = "mixto";
+      inputType = texto ? "mixto" : "imagen";
     }
 
     if (imagenUrl) {
       referencias_visuales.push(imagenUrl);
-      if (!hasAudio && !texto && !transcripcion) inputType = "imagen";
-      else inputType = "mixto";
+      inputType = texto ? "mixto" : "imagen";
     }
 
-    // Build unified relato for rule-based analysis
-    const partsForAnalysis: string[] = [];
-    if (texto) partsForAnalysis.push(texto);
-    if (transcripcion) partsForAnalysis.push(transcripcion);
-
-    if (partsForAnalysis.length === 0) {
+    if (!texto) {
       return NextResponse.json(
-        {
-          error:
-            "Debes proporcionar al menos texto o una transcripción del audio.",
-        },
+        { error: "Debes proporcionar al menos el relato del sueño." },
         { status: 400 }
       );
     }
 
-    const relatoUnificado = partsForAnalysis.join("\n\n");
-    const analysis = analyzeOniricInputRules(relatoUnificado);
+    const analysis = analyzeOniricInputRules(texto);
 
     const oniricCase: OniricCase = {
       id: uuidv4(),
       created_at: new Date().toISOString(),
       input: {
         tipo: inputType,
-        texto_original: texto || undefined,
-        transcripcion: transcripcion || undefined,
+        texto_original: texto,
         referencias_visuales:
           referencias_visuales.length > 0 ? referencias_visuales : undefined,
       },

@@ -7,7 +7,7 @@ create table if not exists cases (
   -- input fields
   input_tipo           text not null,
   texto_original       text,
-  transcripcion        text,
+  transcripcion        text,           -- retained for backward-compatibility with legacy data
   referencias_visuales text[],           -- public Storage URLs (or external URLs)
   -- analysis fields
   resumen              text not null,
