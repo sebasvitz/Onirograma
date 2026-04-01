@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
+import "./globals.scss";
 
 export const metadata: Metadata = {
   title: "Onirograma — Cartografía Onírica",
@@ -33,6 +34,8 @@ export default function RootLayout({
           </nav>
         </header>
 
+        {/* Noise grain overlay */}
+        <div className="noise-overlay" aria-hidden="true" />
         <main style={{ height: "100%" }}>{children}</main>
       </body>
     </html>
