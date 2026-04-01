@@ -59,7 +59,7 @@ export default function ThreeBackground({ currentSection }: Props) {
       const r = 25 + Math.random() * 55;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
-      ambientPos[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+      ambientPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       ambientPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       ambientPos[i * 3 + 2] = (Math.random() - 0.5) * 80;
     }
@@ -67,7 +67,7 @@ export default function ThreeBackground({ currentSection }: Props) {
     ambientGeo.setAttribute("position", new THREE.BufferAttribute(ambientPos, 3));
     const mainMat = new THREE.PointsMaterial({
       color: SECTION_PALETTES[0].particle,
-      size: 0.18,
+      size: 0.12,
       transparent: true,
       opacity: 0.52,
       sizeAttenuation: true,
@@ -81,7 +81,7 @@ export default function ThreeBackground({ currentSection }: Props) {
     const GLOW_COUNT = 100;
     const glowPos = new Float32Array(GLOW_COUNT * 3);
     for (let i = 0; i < GLOW_COUNT; i++) {
-      glowPos[i * 3]     = (Math.random() - 0.5) * 60;
+      glowPos[i * 3] = (Math.random() - 0.5) * 60;
       glowPos[i * 3 + 1] = (Math.random() - 0.5) * 50;
       glowPos[i * 3 + 2] = (Math.random() - 0.5) * 35;
     }
@@ -89,7 +89,7 @@ export default function ThreeBackground({ currentSection }: Props) {
     glowGeo.setAttribute("position", new THREE.BufferAttribute(glowPos, 3));
     const glowMat = new THREE.PointsMaterial({
       color: SECTION_PALETTES[0].glow,
-      size: 0.55,
+      size: 0.28,
       transparent: true,
       opacity: 0.28,
       sizeAttenuation: true,
@@ -129,15 +129,16 @@ export default function ThreeBackground({ currentSection }: Props) {
       frameIdRef.current = requestAnimationFrame(animate);
       time += 0.001;
 
-      ambient.rotation.y   =  time * 0.025;
-      ambient.rotation.x   =  Math.sin(time * 0.18) * 0.025;
-      glowPoints.rotation.y = -time * 0.018;
-      glowPoints.rotation.z =  Math.cos(time * 0.12) * 0.015;
+      // Slightly faster, subtler movement to give more life without large jumps
+      ambient.rotation.y = time * 0.045;
+      ambient.rotation.x = Math.sin(time * 0.22) * 0.05;
+      glowPoints.rotation.y = -time * 0.035;
+      glowPoints.rotation.z = Math.cos(time * 0.14) * 0.03;
 
-      rings[0].rotation.z += 0.0008;
-      rings[1].rotation.z -= 0.0006;
-      rings[2].rotation.z += 0.0004;
-      rings[2].rotation.x += 0.0002;
+      rings[0].rotation.z += 0.0012;
+      rings[1].rotation.z -= 0.0010;
+      rings[2].rotation.z += 0.0008;
+      rings[2].rotation.x += 0.00035;
 
       // Smooth color transitions
       currentColorRef.current.lerp(targetColorRef.current, 0.018);

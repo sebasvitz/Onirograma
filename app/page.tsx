@@ -128,9 +128,7 @@ function LandingSection({ onNavigate }: { onNavigate: (i: number) => void }) {
         </div>
 
         <h1 className="hero-title fade-up-delay-1">
-          Oniro
-          <br />
-          grama
+          Onirograma
         </h1>
 
         <p
@@ -177,7 +175,7 @@ function LandingSection({ onNavigate }: { onNavigate: (i: number) => void }) {
           transform: "translateX(-50%)",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
+          alignItems: "absolute",
           gap: "0.5rem",
           color: "var(--text-muted)",
           fontSize: "0.62rem",
@@ -185,7 +183,7 @@ function LandingSection({ onNavigate }: { onNavigate: (i: number) => void }) {
           textTransform: "uppercase",
         }}
       >
-        <span>Desplaza para explorar</span>
+
         <svg
           className="scroll-hint-arrow"
           width="14"
@@ -250,7 +248,7 @@ function ExplanationSection() {
   return (
     <div className="flow-section" style={{ paddingTop: "3.5rem" }}>
       <div
-        style={{ maxWidth: "54rem", margin: "0 auto", padding: "2.5rem 1.5rem 5rem", position: "relative" }}
+        style={{ maxWidth: "54rem", margin: "0 auto", padding: "0.5rem 1.5rem 6rem", position: "relative" }}
       >
         <div
           style={{
@@ -358,6 +356,7 @@ function ExplanationSection() {
               borderRadius: "1rem",
               border: "1px solid rgba(141,128,176,0.2)",
               background: "rgba(141,128,176,0.05)",
+              marginBottom: "2.5rem",
             }}
           >
             <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
@@ -402,7 +401,7 @@ function LibrarySection({ onRegister }: { onRegister: () => void }) {
       .then((data) => {
         if (Array.isArray(data)) setCases(data);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
@@ -590,6 +589,7 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
   const [imagenFile, setImagenFile] = useState<File | null>(null);
   const [imagenUrl, setImagenUrl] = useState("");
   const [imagenPreview, setImagenPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<OniricCase | null>(null);
@@ -687,6 +687,22 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
                 </span>
               ))}
             </div>
+          </div>
+
+          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+            <button
+              onClick={() => router.push(`/cases/${result.id}`)}
+              className="btn-primary"
+              style={{ fontSize: "0.8rem" }}
+            >
+              Ver análisis completo
+            </button>
+            <button onClick={onAfterRegister} className="btn-ghost" style={{ fontSize: "0.8rem" }}>
+              Ver biblioteca
+            </button>
+            <button onClick={handleNewRegistro} className="btn-ghost" style={{ fontSize: "0.8rem" }}>
+              Nuevo registro
+            </button>
           </div>
 
           <div style={{ display: "grid", gap: "0.65rem", marginBottom: "1.5rem" }}>
@@ -845,32 +861,39 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
               Imagen referencial{" "}
               <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(opcional)</span>
             </label>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", minHeight: "3.5rem" }}>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) handleImagenFile(file);
                 }}
-                style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}
+                style={{ display: "none" }}
               />
-              <input
-                type="url"
-                value={imagenUrl}
-                onChange={(e) => setImagenUrl(e.target.value)}
-                placeholder="O pega un link de imagen"
-                className="input-field"
-                style={{ fontSize: "0.78rem" }}
-              />
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn-ghost"
+                  style={{ fontSize: "0.78rem", padding: "0.45rem 0.8rem" }}
+                >
+                  Cargar imagen
+                </button>
+                <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>(opcional)</span>
+              </div>
               {imagenPreview && (
-                <div style={{ position: "relative", width: "6rem", height: "6rem" }}>
-                  <Image
-                    src={imagenPreview}
-                    alt="Vista previa de imagen referencial"
-                    fill
-                    unoptimized
-                    style={{ objectFit: "cover", borderRadius: "0.75rem" }}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <div
+                    aria-hidden
+                    style={{
+                      width: "6rem",
+                      height: "0.45rem",
+                      borderRadius: "999px",
+                      background: "linear-gradient(90deg, var(--color-powder), var(--color-mauve))",
+                      boxShadow: "inset 0 0 6px rgba(0,0,0,0.06)",
+                    }}
                   />
                   <button
                     type="button"
@@ -879,23 +902,15 @@ function RegisterSection({ onAfterRegister }: { onAfterRegister: () => void }) {
                       setImagenPreview(null);
                     }}
                     style={{
-                      position: "absolute",
-                      top: "0.3rem",
-                      right: "0.3rem",
-                      width: "1.2rem",
-                      height: "1.2rem",
-                      borderRadius: "50%",
-                      background: "rgba(0,0,0,0.6)",
                       border: "none",
-                      color: "white",
-                      fontSize: "0.65rem",
+                      background: "transparent",
+                      color: "var(--text-muted)",
                       cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      fontSize: "0.85rem",
+                      padding: "0.15rem 0.35rem",
                     }}
                   >
-                    ✕
+                    Eliminar
                   </button>
                 </div>
               )}
