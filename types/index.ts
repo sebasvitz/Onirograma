@@ -1,4 +1,4 @@
-export type InputType = "texto" | "audio" | "imagen" | "mixto";
+export type InputType = "texto" | "imagen" | "mixto";
 
 export interface EstructuraEspacial {
   tipo: "interior" | "exterior" | "híbrido" | "indefinido";
@@ -48,7 +48,6 @@ export interface OniricCase {
   input: {
     tipo: InputType;
     texto_original?: string;
-    transcripcion?: string;
     referencias_visuales?: string[];
   };
   resumen: string;
@@ -69,7 +68,6 @@ export interface OniricCase {
 
 export interface AnalyzeInput {
   texto?: string;
-  audioBlob?: Blob;
   imagenUrl?: string;
   imagenBase64?: string;
 }

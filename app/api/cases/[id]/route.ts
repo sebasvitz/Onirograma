@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const oniricCase = getCaseById(id);
+  const oniricCase = await getCaseById(id);
   if (!oniricCase) {
     return NextResponse.json({ error: "Caso no encontrado." }, { status: 404 });
   }
@@ -18,7 +18,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const deleted = deleteCaseById(id);
+  const deleted = await deleteCaseById(id);
   if (!deleted) {
     return NextResponse.json({ error: "Caso no encontrado." }, { status: 404 });
   }
