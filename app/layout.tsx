@@ -29,7 +29,7 @@ export default function RootLayout({
               Inicio
             </Link>
             <Link href="/cases" className="site-nav-link">
-              Archivo
+              Biblioteca
             </Link>
           </nav>
         </header>

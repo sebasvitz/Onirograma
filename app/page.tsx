@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import type { OniricCase } from "@/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -19,28 +20,34 @@ declare global {
   }
 }
 
+// Three.js background — loaded only on client to avoid SSR issues
+const ThreeBackground = dynamic(() => import("@/components/ThreeBackground"), {
+  ssr: false,
+});
+
 // ─── Section configuration ────────────────────────────────────────────────────
+// Order: Título → Registrar → Biblioteca → Explicación
 
 const SECTIONS = [
   {
-    id: "inicio",
-    label: "Inicio",
-    bg: "radial-gradient(ellipse 110% 65% at 25% 20%, rgba(141,128,176,0.22) 0%, transparent 55%), radial-gradient(ellipse 80% 55% at 78% 78%, rgba(131,151,196,0.16) 0%, transparent 55%)",
-  },
-  {
-    id: "metodologia",
-    label: "Metodología",
-    bg: "radial-gradient(ellipse 110% 65% at 72% 28%, rgba(107,87,156,0.26) 0%, transparent 55%), radial-gradient(ellipse 80% 55% at 18% 72%, rgba(141,128,176,0.16) 0%, transparent 55%)",
+    id: "titulo",
+    label: "Título",
+    bg: "radial-gradient(ellipse 110% 65% at 25% 20%, rgba(141,128,176,0.28) 0%, transparent 55%), radial-gradient(ellipse 80% 55% at 78% 78%, rgba(131,151,196,0.2) 0%, transparent 55%)",
   },
   {
     id: "registrar",
     label: "Registrar",
-    bg: "radial-gradient(ellipse 110% 65% at 18% 62%, rgba(207,144,193,0.22) 0%, transparent 55%), radial-gradient(ellipse 80% 55% at 82% 18%, rgba(251,216,224,0.10) 0%, transparent 55%)",
+    bg: "radial-gradient(ellipse 110% 65% at 18% 62%, rgba(207,144,193,0.28) 0%, transparent 55%), radial-gradient(ellipse 80% 55% at 82% 18%, rgba(251,216,224,0.14) 0%, transparent 55%)",
   },
   {
     id: "biblioteca",
     label: "Biblioteca",
-    bg: "radial-gradient(ellipse 110% 65% at 62% 78%, rgba(131,151,196,0.22) 0%, transparent 55%), radial-gradient(ellipse 80% 55% at 28% 18%, rgba(170,203,224,0.13) 0%, transparent 55%)",
+    bg: "radial-gradient(ellipse 110% 65% at 62% 78%, rgba(131,151,196,0.28) 0%, transparent 55%), radial-gradient(ellipse 80% 55% at 28% 18%, rgba(170,203,224,0.18) 0%, transparent 55%)",
+  },
+  {
+    id: "explicacion",
+    label: "Explicación",
+    bg: "radial-gradient(ellipse 110% 65% at 72% 28%, rgba(107,87,156,0.3) 0%, transparent 55%), radial-gradient(ellipse 80% 55% at 18% 72%, rgba(141,128,176,0.2) 0%, transparent 55%)",
   },
 ] as const;
 
@@ -158,18 +165,18 @@ function LandingSection({ onNavigate }: { onNavigate: (i: number) => void }) {
           style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}
         >
           <button
-            onClick={() => onNavigate(2)}
+            onClick={() => onNavigate(1)}
             className="btn-primary"
             style={{ fontSize: "0.78rem", padding: "0.65rem 1.5rem" }}
           >
             Registrar sueño
           </button>
           <button
-            onClick={() => onNavigate(1)}
+            onClick={() => onNavigate(3)}
             className="btn-ghost"
             style={{ fontSize: "0.78rem", padding: "0.65rem 1.5rem" }}
           >
-            Metodología
+            Explicación
           </button>
         </div>
       </div>
@@ -217,9 +224,9 @@ function LandingSection({ onNavigate }: { onNavigate: (i: number) => void }) {
   );
 }
 
-// ─── Methodology section ──────────────────────────────────────────────────────
+// ─── Explicación section ──────────────────────────────────────────────────────
 
-function MethodologySection() {
+function ExplanationSection() {
   const dimensions = [
     {
       symbol: "○",
@@ -281,7 +288,7 @@ function MethodologySection() {
               marginBottom: "0.5rem",
             }}
           >
-            Metodología
+            Explicación
           </div>
           <h2
             style={{
@@ -1271,41 +1278,46 @@ export default function HomePage() {
   }, [navigateRelative]);
 
   return (
-    <div className="scroll-flow">
-      {/* Background gradient layer */}
-      <div className="flow-bg-layer" style={{ background: SECTIONS[currentSection].bg }} />
+    <>
+      {/* Atmospheric Three.js depth layer — behind all content */}
+      <ThreeBackground currentSection={currentSection} />
 
-      {/* Sections container */}
-      <div
-        className="flow-sections"
-        style={{ transform: `translateY(-${currentSection * 100}vh)` }}
-      >
-        <div className="flow-section" ref={(el) => { sectionRefs.current[0] = el; }}>
-          <LandingSection onNavigate={navigateTo} />
+      <div className="scroll-flow">
+        {/* Background gradient layer */}
+        <div className="flow-bg-layer" style={{ background: SECTIONS[currentSection].bg }} />
+
+        {/* Sections container — order: Título, Registrar, Biblioteca, Explicación */}
+        <div
+          className="flow-sections"
+          style={{ transform: `translateY(-${currentSection * 100}vh)` }}
+        >
+          <div className="flow-section" ref={(el) => { sectionRefs.current[0] = el; }}>
+            <LandingSection onNavigate={navigateTo} />
+          </div>
+          <div className="flow-section" ref={(el) => { sectionRefs.current[1] = el; }}>
+            <RegisterSection onAfterRegister={() => navigateTo(2)} />
+          </div>
+          <div className="flow-section" ref={(el) => { sectionRefs.current[2] = el; }}>
+            <LibrarySection onRegister={() => navigateTo(1)} />
+          </div>
+          <div className="flow-section" ref={(el) => { sectionRefs.current[3] = el; }}>
+            <ExplanationSection />
+          </div>
         </div>
-        <div className="flow-section" ref={(el) => { sectionRefs.current[1] = el; }}>
-          <MethodologySection />
-        </div>
-        <div className="flow-section" ref={(el) => { sectionRefs.current[2] = el; }}>
-          <RegisterSection onAfterRegister={() => navigateTo(3)} />
-        </div>
-        <div className="flow-section" ref={(el) => { sectionRefs.current[3] = el; }}>
-          <LibrarySection onRegister={() => navigateTo(2)} />
-        </div>
+
+        {/* Side navigation dots */}
+        <nav className="flow-nav" aria-label="Secciones">
+          {SECTIONS.map((s, i) => (
+            <button
+              key={s.id}
+              className={"flow-nav-dot" + (i === currentSection ? " active" : "")}
+              onClick={() => navigateTo(i)}
+              aria-label={s.label}
+              title={s.label}
+            />
+          ))}
+        </nav>
       </div>
-
-      {/* Side navigation dots */}
-      <nav className="flow-nav" aria-label="Secciones">
-        {SECTIONS.map((s, i) => (
-          <button
-            key={s.id}
-            className={"flow-nav-dot" + (i === currentSection ? " active" : "")}
-            onClick={() => navigateTo(i)}
-            aria-label={s.label}
-            title={s.label}
-          />
-        ))}
-      </nav>
-    </div>
+    </>
   );
 }
