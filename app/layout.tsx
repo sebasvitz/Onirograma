@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 import "./globals.scss";
+import { Analytics } from '@vercel/analytics/react'
 
 export const metadata: Metadata = {
   title: "Onirograma — Cartografía Onírica",
@@ -37,6 +38,7 @@ export default function RootLayout({
         {/* Noise grain overlay */}
         <div className="noise-overlay" aria-hidden="true" />
         <main style={{ height: "100%" }}>{children}</main>
+        <Analytics />
       </body>
     </html>
   );
