@@ -71,60 +71,6 @@ La app estará disponible en [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 🔑 Variables de entorno
-
-Obtén estos valores en tu proyecto de Supabase: **Settings → API**
-
-```env
-# URL pública del proyecto Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
-
-# Clave anónima (pública, segura para el frontend)
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-
-# Clave de servicio (¡SECRETA! Solo para API routes del servidor)
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-```
-
-> ⚠️ **Nunca expongas `SUPABASE_SERVICE_ROLE_KEY` en el frontend.** Solo debe usarse en rutas de API del servidor.
-
----
-
-## 🗄️ Configuración de Supabase
-
-Antes de usar la app, ejecuta el siguiente SQL en el **Editor SQL de Supabase** para crear la tabla principal:
-
-```sql
--- Ejecutar en: Supabase Dashboard → SQL Editor
--- (ver archivo completo en supabase/schema.sql)
-create table if not exists cases (
-  id                   uuid primary key,
-  created_at           timestamptz not null default now(),
-  input_tipo           text not null,
-  texto_original       text,
-  referencias_visuales text[],
-  resumen              text not null,
-  estructura_espacial  jsonb not null,
-  dinamicas            text[] not null,
-  luz                  jsonb not null,
-  materialidad         text[] not null,
-  corporalidad         jsonb not null,
-  emocion              jsonb not null,
-  recorrido            jsonb not null,
-  elementos_espaciales text[] not null,
-  traduccion_espacial  jsonb not null,
-  keywords             text[] not null
-);
-```
-
-Luego crea el bucket de almacenamiento de imágenes:
-
-- Ve a **Storage → New bucket**
-- Nombre: `dream-images`
-- Acceso: **Público**
-
----
-
 ## 📁 Estructura del proyecto
 
 ```
@@ -157,50 +103,6 @@ Onirograma/
 
 ---
 
-## ☁️ Despliegue en Vercel
-
-1. Importa el repositorio en [vercel.com](https://vercel.com)
-2. Vercel detectará **Next.js** automáticamente
-3. Añade las tres variables de entorno de Supabase en **Settings → Environment Variables**
-4. Despliega — no se necesita configuración adicional de build
-
-| Parámetro | Valor |
-|---|---|
-| Framework | Next.js (auto-detectado) |
-| Build command | `next build` |
-| Output directory | Default |
-| Root directory | `./` |
-
----
-
-## 📊 Ejemplo de análisis generado
-
-Cada sueño registrado produce un objeto estructurado como este:
-
-```json
-{
-  "id": "uuid",
-  "created_at": "2025-01-01T00:00:00Z",
-  "input": {
-    "tipo": "texto",
-    "texto_original": "Caminaba por un pasillo infinito...",
-    "referencias_visuales": ["https://...supabase.co/storage/v1/object/public/dream-images/..."]
-  },
-  "resumen": "Espacio lineal infinito con luz difusa y sensación de suspensión",
-  "estructura_espacial": { "tipo": "interior", "naturaleza": "transformado", "escala": "infinita" },
-  "dinamicas": ["expansión", "fragmentación"],
-  "luz": { "intensidad": "baja", "tipo": "difusa", "temperatura": "fría" },
-  "materialidad": ["niebla", "concreto"],
-  "emocion": { "principal": "extrañeza", "clima_afectivo": "tenso-suspendido" },
-  "traduccion_espacial": {
-    "potencial": "Corredor de transición con escala monumental y luz rasante",
-    "estrategias": { "luz": "...", "materialidad": "...", "recorrido": "...", "escala": "...", "atmosfera": "..." }
-  },
-  "keywords": ["infinito", "pasillo", "suspensión", "niebla"]
-}
-```
-
----
 
 <div align="center">
 
