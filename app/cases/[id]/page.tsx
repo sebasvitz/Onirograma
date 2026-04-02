@@ -108,6 +108,7 @@ export default async function CaseDetailPage({
                   key={url}
                   src={url}
                   alt={`Referencia visual ${i + 1}`}
+                  loading="eager"
                   width={200}
                   height={200}
                   style={{
