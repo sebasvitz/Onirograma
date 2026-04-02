@@ -1,116 +1,210 @@
-# Onirograma — Cartografía Onírica
+# 🌙 Onirograma — Cartografía Onírica
 
-Sistema de análisis onírico: traduce experiencias de sueños (texto, audio, imagen) en variables espaciales, sensoriales y perceptivas para diseño espacial y escenográfico.
+> **Traduce tus sueños en lenguaje espacial.**  
+> Onirograma analiza la experiencia onírica —texto, imagen o ambos— y la convierte en variables estructuradas de diseño: luz, materialidad, escala, recorrido y atmósfera.
 
-## Descripción
+---
 
-Onirograma **no realiza interpretación psicológica**. Su función es la **traducción perceptiva → espacial**: transforma el relato de un sueño en un análisis estructurado listo para aplicar en decisiones de diseño.
+## ✨ ¿Qué es Onirograma?
 
-## Funcionalidades
+Onirograma es una aplicación web que actúa como **herramienta de traducción perceptiva → espacial**. No interpreta tus sueños psicológicamente; los **cartografía**: extrae sus cualidades espaciales y sensoriales para convertirlas en insumos concretos para el diseño arquitectónico o escenográfico.
 
-- **Ingesta multi-modal**: texto libre, audio (grabación en vivo o archivo), imagen (upload o URL)
-- **Transcripción automática**: convierte narración oral a texto vía OpenAI Whisper
-- **Análisis estructurado por GPT-4o**:
-  - Estructura espacial (tipo, naturaleza, límites, escala, organización)
-  - Dinámicas espaciales (expansión, compresión, fragmentación, etc.)
-  - Luz (intensidad, tipo, temperatura, comportamiento, origen)
-  - Materialidad (niebla, agua, vidrio, textil, etc.)
-  - Corporalidad (estado, gravedad, sensación, control, presencia)
-  - Emoción dominante y clima afectivo
-  - Recorrido (tipo, continuidad, dirección, lógica)
-  - Elementos espaciales relevantes
-- **Traducción a diseño**: potencial espacial + estrategias por categoría
-- **Archivo onírico**: almacenamiento y navegación de todos los casos
-- **Output JSON**: exportable, filtrable, escalable a Airtable/DB
+La interfaz presenta un flujo de scroll vertical inmersivo con fondo 3D animado, pensado para acompañar la experiencia de registrar un sueño.
 
-## Stack
+---
 
-- **Framework**: Next.js 16 (App Router) + TypeScript
-- **Estilos**: Tailwind CSS
-- **IA**: OpenAI API (GPT-4o para análisis, Whisper para transcripción)
-- **Almacenamiento**: JSON local (`data/cases.json`) — migrable a Airtable/PostgreSQL
+## 🚀 Funcionalidades
 
-## Instalación
+| Función | Descripción |
+|---|---|
+| 📝 **Registro de sueños** | Ingresa texto libre, sube una imagen de referencia, o combina ambos |
+| 🔍 **Análisis estructurado** | Motor de reglas que extrae estructura espacial, luz, materialidad, corporalidad, recorrido y emoción |
+| 🖼️ **Referencias visuales** | Sube imágenes a Supabase Storage y vincúlalas al sueño |
+| 📚 **Biblioteca onírica** | Navega y consulta todos los sueños guardados |
+| 🗑️ **Eliminar sueños** | Borra registros incorrectos o que ya no sean útiles |
+| 🌌 **Fondo 3D interactivo** | Escena Three.js animada que acompaña la experiencia visual |
+
+---
+
+## 🛠️ Stack tecnológico
+
+- **Framework** — [Next.js 16](https://nextjs.org/) (App Router) + TypeScript
+- **Estilos** — Tailwind CSS + SCSS (sistema de diseño propio con paleta índigo-violeta)
+- **Base de datos** — [Supabase](https://supabase.com/) (PostgreSQL)
+- **Almacenamiento de imágenes** — Supabase Storage (`dream-images`)
+- **3D** — [Three.js](https://threejs.org/) (cargado dinámicamente con `next/dynamic`)
+- **Análisis** — Motor de reglas local (`lib/analyzer-rules.ts`), sin dependencias de IA externa
+- **Despliegue** — [Vercel](https://vercel.com/)
+
+---
+
+## ⚙️ Instalación y uso local
+
+### 1. Clonar el repositorio
 
 ```bash
-# Clonar y entrar al directorio
-git clone <repo>
+git clone https://github.com/sebasvitz/Onirograma.git
 cd Onirograma
+```
 
-# Instalar dependencias
+### 2. Instalar dependencias
+
+```bash
 npm install
+```
 
-# Configurar variables de entorno
+### 3. Configurar variables de entorno
+
+```bash
 cp .env.example .env.local
-# Editar .env.local y agregar tu OPENAI_API_KEY
+```
 
-# Iniciar en desarrollo
+Edita `.env.local` y completa los valores de Supabase (ver sección siguiente).
+
+### 4. Iniciar en modo desarrollo
+
+```bash
 npm run dev
 ```
 
 La app estará disponible en [http://localhost:3000](http://localhost:3000).
 
-## Variables de entorno
+---
+
+## 🔑 Variables de entorno
+
+Obtén estos valores en tu proyecto de Supabase: **Settings → API**
 
 ```env
-OPENAI_API_KEY=sk-...   # Requerido
+# URL pública del proyecto Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+
+# Clave anónima (pública, segura para el frontend)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+
+# Clave de servicio (¡SECRETA! Solo para API routes del servidor)
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```
 
-## Estructura del proyecto
+> ⚠️ **Nunca expongas `SUPABASE_SERVICE_ROLE_KEY` en el frontend.** Solo debe usarse en rutas de API del servidor.
+
+---
+
+## 🗄️ Configuración de Supabase
+
+Antes de usar la app, ejecuta el siguiente SQL en el **Editor SQL de Supabase** para crear la tabla principal:
+
+```sql
+-- Ejecutar en: Supabase Dashboard → SQL Editor
+-- (ver archivo completo en supabase/schema.sql)
+create table if not exists cases (
+  id                   uuid primary key,
+  created_at           timestamptz not null default now(),
+  input_tipo           text not null,
+  texto_original       text,
+  referencias_visuales text[],
+  resumen              text not null,
+  estructura_espacial  jsonb not null,
+  dinamicas            text[] not null,
+  luz                  jsonb not null,
+  materialidad         text[] not null,
+  corporalidad         jsonb not null,
+  emocion              jsonb not null,
+  recorrido            jsonb not null,
+  elementos_espaciales text[] not null,
+  traduccion_espacial  jsonb not null,
+  keywords             text[] not null
+);
+```
+
+Luego crea el bucket de almacenamiento de imágenes:
+
+- Ve a **Storage → New bucket**
+- Nombre: `dream-images`
+- Acceso: **Público**
+
+---
+
+## 📁 Estructura del proyecto
 
 ```
-/
+Onirograma/
 ├── app/
 │   ├── api/
-│   │   ├── analyze/route.ts     # POST: analiza input onírico
+│   │   ├── analyze/route.ts        # POST: analiza el input onírico
 │   │   └── cases/
-│   │       ├── route.ts         # GET: lista todos los casos
-│   │       └── [id]/route.ts    # GET/DELETE: caso individual
+│   │       ├── route.ts            # GET: lista todos los casos
+│   │       └── [id]/route.ts       # GET / DELETE: caso individual
 │   ├── cases/
-│   │   ├── page.tsx             # Archivo onírico (lista)
-│   │   └── [id]/page.tsx        # Detalle de caso
+│   │   ├── page.tsx                # Biblioteca onírica (lista)
+│   │   └── [id]/page.tsx           # Detalle de un sueño
+│   ├── globals.scss                # Sistema de diseño SCSS
 │   ├── layout.tsx
-│   └── page.tsx                 # Formulario de ingesta
+│   └── page.tsx                    # Página principal (scroll flow)
+├── components/
+│   ├── DeleteCaseButton.tsx        # Botón para eliminar un sueño
+│   └── ThreeBackground.tsx         # Fondo 3D animado (Three.js)
 ├── lib/
-│   ├── analyzer.ts              # Análisis GPT-4o
-│   ├── transcriber.ts           # Transcripción Whisper
-│   └── db.ts                    # Almacenamiento JSON
+│   ├── analyzer-rules.ts           # Motor de análisis (basado en reglas)
+│   ├── db.ts                       # CRUD con Supabase
+│   └── supabase.ts                 # Cliente Supabase (singleton)
+├── supabase/
+│   └── schema.sql                  # Esquema de base de datos
 ├── types/
-│   └── index.ts                 # Tipos TypeScript
-└── data/
-    └── cases.json               # Base de datos local (auto-creado)
+│   └── index.ts                    # Tipos TypeScript
+└── .env.example                    # Plantilla de variables de entorno
 ```
 
-## Output JSON por caso
+---
+
+## ☁️ Despliegue en Vercel
+
+1. Importa el repositorio en [vercel.com](https://vercel.com)
+2. Vercel detectará **Next.js** automáticamente
+3. Añade las tres variables de entorno de Supabase en **Settings → Environment Variables**
+4. Despliega — no se necesita configuración adicional de build
+
+| Parámetro | Valor |
+|---|---|
+| Framework | Next.js (auto-detectado) |
+| Build command | `next build` |
+| Output directory | Default |
+| Root directory | `./` |
+
+---
+
+## 📊 Ejemplo de análisis generado
+
+Cada sueño registrado produce un objeto estructurado como este:
 
 ```json
 {
   "id": "uuid",
-  "created_at": "ISO timestamp",
-  "input": { "tipo": "texto|audio|imagen|mixto", "texto_original": "...", "transcripcion": "..." },
-  "resumen": "síntesis del sueño",
-  "estructura_espacial": { "tipo": "...", "naturaleza": "...", "limites": "...", "escala": "...", "organizacion": "..." },
+  "created_at": "2025-01-01T00:00:00Z",
+  "input": {
+    "tipo": "texto",
+    "texto_original": "Caminaba por un pasillo infinito...",
+    "referencias_visuales": ["https://...supabase.co/storage/v1/object/public/dream-images/..."]
+  },
+  "resumen": "Espacio lineal infinito con luz difusa y sensación de suspensión",
+  "estructura_espacial": { "tipo": "interior", "naturaleza": "transformado", "escala": "infinita" },
   "dinamicas": ["expansión", "fragmentación"],
-  "luz": { "intensidad": "...", "tipo": "...", "temperatura": "...", "comportamiento": "...", "origen": "..." },
-  "materialidad": ["niebla", "vidrio"],
-  "corporalidad": { "estado": "...", "gravedad": "...", "sensacion": "...", "control": "...", "presencia": "..." },
-  "emocion": { "principal": "...", "clima_afectivo": "..." },
-  "recorrido": { "tipo": "...", "continuidad": "...", "direccion": "...", "logica": "..." },
-  "elementos_espaciales": ["..."],
+  "luz": { "intensidad": "baja", "tipo": "difusa", "temperatura": "fría" },
+  "materialidad": ["niebla", "concreto"],
+  "emocion": { "principal": "extrañeza", "clima_afectivo": "tenso-suspendido" },
   "traduccion_espacial": {
-    "potencial": "descripción de traducción espacial",
+    "potencial": "Corredor de transición con escala monumental y luz rasante",
     "estrategias": { "luz": "...", "materialidad": "...", "recorrido": "...", "escala": "...", "atmosfera": "..." }
   },
-  "keywords": ["máximo 8 tags"]
+  "keywords": ["infinito", "pasillo", "suspensión", "niebla"]
 }
 ```
 
-## Escalabilidad
+---
 
-El sistema está diseñado para escalar hacia:
-- Comparación entre múltiples sueños
-- Detección de patrones globales
-- Clustering de atmósferas
-- Dashboard de visualización
-- Migración a Airtable, Supabase o PostgreSQL
+<div align="center">
+
+*Onirograma — donde los sueños encuentran su forma.*
+
+</div>
 
