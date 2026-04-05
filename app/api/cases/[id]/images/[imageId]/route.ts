@@ -21,8 +21,14 @@ export async function DELETE(
     const marker = "/object/public/dream-images/";
     const idx = url.indexOf(marker);
     if (idx !== -1) {
-      const storagePath = url.slice(idx + marker.length);
-      await supabase.storage.from("dream-images").remove([decodeURIComponent(storagePath)]);
+      const rawPath = url.slice(idx + marker.length);
+      let storagePath: string;
+      try {
+        storagePath = decodeURIComponent(rawPath);
+      } catch {
+        storagePath = rawPath;
+      }
+      await supabase.storage.from("dream-images").remove([storagePath]);
     }
   } catch {
     // Non-fatal: DB record is already deleted
