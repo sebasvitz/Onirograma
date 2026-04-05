@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import type { OniricCase } from "@/types";
+import type { OniricCase, SectionImage } from "@/types";
 import DeleteCaseButton from "@/components/DeleteCaseButton";
+import SectionImageUploader from "@/components/SectionImageUploader";
 
 async function getCase(id: string): Promise<OniricCase | null> {
   try {
@@ -10,6 +11,15 @@ async function getCase(id: string): Promise<OniricCase | null> {
     return await getCaseById(id);
   } catch {
     return null;
+  }
+}
+
+async function getSectionImages(caseId: string): Promise<SectionImage[]> {
+  try {
+    const { getImagesByCaseId } = await import("@/lib/db");
+    return await getImagesByCaseId(caseId);
+  } catch {
+    return [];
   }
 }
 
@@ -32,9 +42,15 @@ export default async function CaseDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const caso = await getCase(id);
+  const [caso, allImages] = await Promise.all([getCase(id), getSectionImages(id)]);
 
   if (!caso) notFound();
+
+  // Group images by section for fast lookup
+  const imagesBySection = allImages.reduce<Record<string, SectionImage[]>>((acc, img) => {
+    (acc[img.section] ??= []).push(img);
+    return acc;
+  }, {});
 
   const date = new Date(caso.created_at).toLocaleString("es-ES", {
     day: "2-digit",
@@ -124,7 +140,7 @@ export default async function CaseDetailPage({
 
         {/* Input original */}
         {caso.input.texto_original && (
-          <Section title="Input original">
+          <Section title="Input original" caseId={id} images={imagesBySection["Input original"] ?? []}>
             <SubSection label="Texto escrito">
               <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
                 {caso.input.texto_original}
@@ -134,7 +150,7 @@ export default async function CaseDetailPage({
         )}
 
         {/* Estructura espacial */}
-        <Section title="Estructura espacial">
+        <Section title="Estructura espacial" caseId={id} images={imagesBySection["Estructura espacial"] ?? []}>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <DataCell label="Tipo" value={caso.estructura_espacial.tipo} accent="var(--color-powder)" />
             <DataCell label="Naturaleza" value={caso.estructura_espacial.naturaleza} accent="var(--color-powder)" />
@@ -145,7 +161,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Dinámicas */}
-        <Section title="Dinámicas espaciales">
+        <Section title="Dinámicas espaciales" caseId={id} images={imagesBySection["Dinámicas espaciales"] ?? []}>
           <div className="flex flex-wrap gap-2">
             {caso.dinamicas.map((d) => (
               <span
@@ -164,7 +180,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Luz */}
-        <Section title="Luz">
+        <Section title="Luz" caseId={id} images={imagesBySection["Luz"] ?? []}>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <DataCell label="Intensidad" value={caso.luz.intensidad} accent="var(--color-petal)" />
             <DataCell label="Tipo" value={caso.luz.tipo} accent="var(--color-petal)" />
@@ -175,7 +191,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Materialidad */}
-        <Section title="Materialidad">
+        <Section title="Materialidad" caseId={id} images={imagesBySection["Materialidad"] ?? []}>
           <div className="flex flex-wrap gap-2">
             {caso.materialidad.map((m) => (
               <span
@@ -194,7 +210,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Corporalidad */}
-        <Section title="Corporalidad">
+        <Section title="Corporalidad" caseId={id} images={imagesBySection["Corporalidad"] ?? []}>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <DataCell label="Estado" value={caso.corporalidad.estado} accent="var(--color-violet)" />
             <DataCell label="Gravedad" value={caso.corporalidad.gravedad} accent="var(--color-violet)" />
@@ -205,7 +221,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Emoción */}
-        <Section title="Emoción dominante">
+        <Section title="Emoción dominante" caseId={id} images={imagesBySection["Emoción dominante"] ?? []}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DataCell label="Principal" value={caso.emocion.principal} accent="var(--color-mauve)" />
             <DataCell label="Clima afectivo" value={caso.emocion.clima_afectivo} accent="var(--color-mauve)" />
@@ -213,7 +229,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Recorrido */}
-        <Section title="Recorrido">
+        <Section title="Recorrido" caseId={id} images={imagesBySection["Recorrido"] ?? []}>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <DataCell label="Tipo" value={caso.recorrido.tipo} accent="var(--color-periwinkle)" />
             <DataCell label="Continuidad" value={caso.recorrido.continuidad} accent="var(--color-periwinkle)" />
@@ -224,7 +240,7 @@ export default async function CaseDetailPage({
 
         {/* Elementos espaciales */}
         {caso.elementos_espaciales.length > 0 && (
-          <Section title="Elementos espaciales relevantes">
+          <Section title="Elementos espaciales relevantes" caseId={id} images={imagesBySection["Elementos espaciales relevantes"] ?? []}>
             <ul className="space-y-1">
               {caso.elementos_espaciales.map((el) => (
                 <li
@@ -241,7 +257,7 @@ export default async function CaseDetailPage({
         )}
 
         {/* Traducción espacial */}
-        <Section title="Traducción espacial">
+        <Section title="Traducción espacial" caseId={id} images={imagesBySection["Traducción espacial"] ?? []}>
           <div
             className="p-5 rounded-2xl mb-4"
             style={{
@@ -299,9 +315,13 @@ export default async function CaseDetailPage({
 function Section({
   title,
   children,
+  caseId,
+  images,
 }: {
   title: string;
   children: React.ReactNode;
+  caseId?: string;
+  images?: SectionImage[];
 }) {
   const accent = SECTION_ACCENTS[title] ?? "var(--color-mist)";
   return (
@@ -313,6 +333,13 @@ function Section({
         {title}
       </div>
       {children}
+      {caseId !== undefined && (
+        <SectionImageUploader
+          caseId={caseId}
+          section={title}
+          initialImages={images ?? []}
+        />
+      )}
     </div>
   );
 }

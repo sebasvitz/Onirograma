@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { OniricCase } from "@/types";
+import type { OniricCase, SectionImage } from "@/types";
 
 // ── Row shape stored in Supabase ──────────────────────────────────────────────
 // The DB uses flat snake_case columns; we map to/from the OniricCase type.
@@ -104,4 +104,47 @@ export async function deleteCaseById(id: string): Promise<boolean> {
 
   if (error) throw new Error(error.message);
   return (count ?? 0) > 0;
+}
+
+// ── Section images ────────────────────────────────────────────────────────────
+
+export async function getImagesByCaseId(caseId: string): Promise<SectionImage[]> {
+  const { data, error } = await supabase
+    .from("section_images")
+    .select("*")
+    .eq("case_id", caseId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return data as SectionImage[];
+}
+
+export async function createSectionImage(
+  caseId: string,
+  section: string,
+  url: string
+): Promise<SectionImage> {
+  const { data, error } = await supabase
+    .from("section_images")
+    .insert({ case_id: caseId, section, url })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data as SectionImage;
+}
+
+export async function deleteSectionImage(imageId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("section_images")
+    .delete()
+    .eq("id", imageId)
+    .select("url")
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") return null;
+    throw new Error(error.message);
+  }
+  return (data as { url: string }).url;
 }
