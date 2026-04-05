@@ -23,7 +23,20 @@ create table if not exists cases (
   keywords             text[] not null
 );
 
--- 2. Storage bucket: dream-images
+-- 2. Table: section_images
+-- Stores reference images uploaded per analysis section for each case.
+create table if not exists section_images (
+  id         uuid primary key default gen_random_uuid(),
+  case_id    uuid not null references cases(id) on delete cascade,
+  section    text not null,
+  url        text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists section_images_case_id_idx on section_images(case_id);
+
+-- 3. Storage bucket: dream-images
 -- Create it manually in Supabase Dashboard → Storage → New bucket
 -- Name: dream-images
 -- Access: Public (so image URLs are accessible without authentication)
+-- Reference images are stored under: section-refs/{case_id}/{filename}

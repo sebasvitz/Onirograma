@@ -1,5 +1,13 @@
 export type InputType = "texto" | "imagen" | "mixto";
 
+export interface SectionImage {
+  id: string;
+  case_id: string;
+  section: string;
+  url: string;
+  created_at: string;
+}
+
 export interface EstructuraEspacial {
   tipo: "interior" | "exterior" | "híbrido" | "indefinido";
   naturaleza: "real" | "transformado" | "abstracto" | "imposible";
