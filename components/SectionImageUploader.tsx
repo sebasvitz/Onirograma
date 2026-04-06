@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { SectionImage } from "@/types";
 
 interface Props {
@@ -13,7 +14,18 @@ export default function SectionImageUploader({ caseId, section, initialImages }:
   const [images, setImages] = useState<SectionImage[]>(initialImages);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Close lightbox on Escape key
+  useEffect(() => {
+    if (!lightbox) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightbox]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -84,15 +96,19 @@ export default function SectionImageUploader({ caseId, section, initialImages }:
                 flexShrink: 0,
               }}
             >
-              {/* Thumbnail — opens full image in new tab */}
-              <a href={img.url} target="_blank" rel="noopener noreferrer" title="Abrir imagen">
+              {/* Thumbnail — opens lightbox */}
+              <button
+                onClick={() => setLightbox(img.url)}
+                title="Ver imagen"
+                style={{ display: "block", width: "100%", height: "100%", padding: 0, border: "none", background: "none", cursor: "zoom-in" }}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img.url}
                   alt="Imagen de referencia"
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                 />
-              </a>
+              </button>
               {/* Delete button */}
               <button
                 onClick={() => handleDelete(img.id)}
@@ -168,6 +184,78 @@ export default function SectionImageUploader({ caseId, section, initialImages }:
         style={{ display: "none" }}
         onChange={(e) => handleFiles(e.target.files)}
       />
+
+      {/* Lightbox modal */}
+      {lightbox && typeof document !== "undefined" && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Vista previa de imagen"
+          onClick={() => setLightbox(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(15,13,34,0.88)",
+            backdropFilter: "blur(6px)",
+            cursor: "zoom-out",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "relative",
+              maxWidth: "min(90vw, 900px)",
+              maxHeight: "85vh",
+              borderRadius: "1rem",
+              overflow: "hidden",
+              border: "1px solid var(--border)",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
+              cursor: "default",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={lightbox}
+              alt="Vista previa ampliada"
+              style={{
+                display: "block",
+                maxWidth: "min(90vw, 900px)",
+                maxHeight: "85vh",
+                objectFit: "contain",
+              }}
+            />
+            <button
+              onClick={() => setLightbox(null)}
+              title="Cerrar"
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "rgba(15,13,34,0.8)",
+                border: "1px solid rgba(237,232,255,0.25)",
+                color: "var(--text-secondary)",
+                fontSize: "1rem",
+                lineHeight: 1,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

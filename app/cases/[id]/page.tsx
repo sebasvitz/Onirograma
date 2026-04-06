@@ -140,7 +140,7 @@ export default async function CaseDetailPage({
 
         {/* Input original */}
         {caso.input.texto_original && (
-          <Section title="Input original" caseId={id} images={imagesBySection["Input original"] ?? []}>
+          <Section title="Input original">
             <SubSection label="Texto escrito">
               <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
                 {caso.input.texto_original}
@@ -150,7 +150,7 @@ export default async function CaseDetailPage({
         )}
 
         {/* Estructura espacial */}
-        <Section title="Estructura espacial" caseId={id} images={imagesBySection["Estructura espacial"] ?? []}>
+        <Section title="Estructura espacial">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <DataCell label="Tipo" value={caso.estructura_espacial.tipo} accent="var(--color-powder)" />
             <DataCell label="Naturaleza" value={caso.estructura_espacial.naturaleza} accent="var(--color-powder)" />
@@ -161,7 +161,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Dinámicas */}
-        <Section title="Dinámicas espaciales" caseId={id} images={imagesBySection["Dinámicas espaciales"] ?? []}>
+        <Section title="Dinámicas espaciales">
           <div className="flex flex-wrap gap-2">
             {caso.dinamicas.map((d) => (
               <span
@@ -180,7 +180,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Luz */}
-        <Section title="Luz" caseId={id} images={imagesBySection["Luz"] ?? []}>
+        <Section title="Luz">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <DataCell label="Intensidad" value={caso.luz.intensidad} accent="var(--color-petal)" />
             <DataCell label="Tipo" value={caso.luz.tipo} accent="var(--color-petal)" />
@@ -191,7 +191,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Materialidad */}
-        <Section title="Materialidad" caseId={id} images={imagesBySection["Materialidad"] ?? []}>
+        <Section title="Materialidad">
           <div className="flex flex-wrap gap-2">
             {caso.materialidad.map((m) => (
               <span
@@ -210,7 +210,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Corporalidad */}
-        <Section title="Corporalidad" caseId={id} images={imagesBySection["Corporalidad"] ?? []}>
+        <Section title="Corporalidad">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <DataCell label="Estado" value={caso.corporalidad.estado} accent="var(--color-violet)" />
             <DataCell label="Gravedad" value={caso.corporalidad.gravedad} accent="var(--color-violet)" />
@@ -221,7 +221,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Emoción */}
-        <Section title="Emoción dominante" caseId={id} images={imagesBySection["Emoción dominante"] ?? []}>
+        <Section title="Emoción dominante">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DataCell label="Principal" value={caso.emocion.principal} accent="var(--color-mauve)" />
             <DataCell label="Clima afectivo" value={caso.emocion.clima_afectivo} accent="var(--color-mauve)" />
@@ -229,7 +229,7 @@ export default async function CaseDetailPage({
         </Section>
 
         {/* Recorrido */}
-        <Section title="Recorrido" caseId={id} images={imagesBySection["Recorrido"] ?? []}>
+        <Section title="Recorrido">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <DataCell label="Tipo" value={caso.recorrido.tipo} accent="var(--color-periwinkle)" />
             <DataCell label="Continuidad" value={caso.recorrido.continuidad} accent="var(--color-periwinkle)" />
