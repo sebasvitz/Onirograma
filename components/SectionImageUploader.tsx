@@ -186,7 +186,7 @@ export default function SectionImageUploader({ caseId, section, initialImages }:
       />
 
       {/* Lightbox modal */}
-      {lightbox && typeof document !== "undefined" && createPortal(
+      {lightbox && createPortal(
         <div
           role="dialog"
           aria-modal="true"
