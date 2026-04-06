@@ -140,7 +140,7 @@ export default async function CaseDetailPage({
 
         {/* Input original */}
         {caso.input.texto_original && (
-          <Section title="Input original">
+          <Section title="Input original" caseId={id} images={imagesBySection["Input original"] ?? []}>
             <SubSection label="Texto escrito">
               <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
                 {caso.input.texto_original}
