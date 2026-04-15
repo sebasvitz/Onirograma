@@ -391,11 +391,12 @@ function getEmotionAccent(emocion: string): string {
   return "var(--color-violet)";
 }
 
-function LibrarySection({ onRegister }: { onRegister: () => void }) {
+function LibrarySection({ onRegister, refreshKey }: { onRegister: () => void; refreshKey: number }) {
   const [cases, setCases] = useState<OniricCase[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch("/api/cases")
       .then((r) => r.json())
       .then((data) => {
@@ -403,7 +404,7 @@ function LibrarySection({ onRegister }: { onRegister: () => void }) {
       })
       .catch(() => { })
       .finally(() => setLoading(false));
-  }, []);
+  }, [refreshKey]);
 
   return (
     <div className="flow-section" style={{ paddingTop: "3.5rem" }}>
@@ -960,6 +961,7 @@ function isSectionAtBoundary(el: HTMLDivElement, direction: "down" | "up"): bool
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
+  const [libraryRefreshKey, setLibraryRefreshKey] = useState(0);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const lastWheelTime = useRef(0);
   const touchStartY = useRef(0);
@@ -1031,6 +1033,28 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [navigateRelative]);
 
+  // Refresh library data and navigate to the Biblioteca section
+  const goToBiblioteca = useCallback(() => {
+    setLibraryRefreshKey((k) => k + 1);
+    setCurrentSection(2);
+  }, []);
+
+  // Navigate to Biblioteca section when requested via header link (custom event)
+  useEffect(() => {
+    window.addEventListener("navigate-biblioteca", goToBiblioteca);
+    return () => window.removeEventListener("navigate-biblioteca", goToBiblioteca);
+  }, [goToBiblioteca]);
+
+  // Navigate to Biblioteca section when arriving via ?view=biblioteca query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("view") === "biblioteca") {
+      goToBiblioteca();
+      // Clean up the URL param without a full navigation
+      window.history.replaceState(null, "", "/");
+    }
+  }, [goToBiblioteca]);
+
   return (
     <>
       {/* Atmospheric Three.js depth layer — behind all content */}
@@ -1049,10 +1073,10 @@ export default function HomePage() {
             <LandingSection onNavigate={navigateTo} />
           </div>
           <div className="flow-section" ref={(el) => { sectionRefs.current[1] = el; }}>
-            <RegisterSection onAfterRegister={() => navigateTo(2)} />
+            <RegisterSection onAfterRegister={goToBiblioteca} />
           </div>
           <div className="flow-section" ref={(el) => { sectionRefs.current[2] = el; }}>
-            <LibrarySection onRegister={() => navigateTo(1)} />
+            <LibrarySection onRegister={() => navigateTo(1)} refreshKey={libraryRefreshKey} />
           </div>
           <div className="flow-section" ref={(el) => { sectionRefs.current[3] = el; }}>
             <ExplanationSection />

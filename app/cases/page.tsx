@@ -1,6 +1,9 @@
 import Link from "next/link";
 import type { OniricCase } from "@/types";
 
+// Always fetch fresh data — no server-side cache
+export const dynamic = "force-dynamic";
+
 async function getCases(): Promise<OniricCase[]> {
   try {
     const { getAllCases } = await import("@/lib/db");
