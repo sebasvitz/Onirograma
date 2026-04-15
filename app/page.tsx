@@ -1033,32 +1033,27 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [navigateRelative]);
 
+  // Refresh library data and navigate to the Biblioteca section
+  const goToBiblioteca = useCallback(() => {
+    setLibraryRefreshKey((k) => k + 1);
+    setCurrentSection(2);
+  }, []);
+
   // Navigate to Biblioteca section when requested via header link (custom event)
   useEffect(() => {
-    const handleNavigateBiblioteca = () => {
-      setLibraryRefreshKey((k) => k + 1);
-      setCurrentSection(2);
-    };
-    window.addEventListener("navigate-biblioteca", handleNavigateBiblioteca);
-    return () => window.removeEventListener("navigate-biblioteca", handleNavigateBiblioteca);
-  }, []);
+    window.addEventListener("navigate-biblioteca", goToBiblioteca);
+    return () => window.removeEventListener("navigate-biblioteca", goToBiblioteca);
+  }, [goToBiblioteca]);
 
   // Navigate to Biblioteca section when arriving via ?view=biblioteca query param
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("view") === "biblioteca") {
-      setLibraryRefreshKey((k) => k + 1);
-      setCurrentSection(2);
+      goToBiblioteca();
       // Clean up the URL param without a full navigation
       window.history.replaceState(null, "", "/");
     }
-  }, []);
-
-  // Handler for navigating to the library after registration (refresh + scroll)
-  const handleAfterRegister = useCallback(() => {
-    setLibraryRefreshKey((k) => k + 1);
-    navigateTo(2);
-  }, [navigateTo]);
+  }, [goToBiblioteca]);
 
   return (
     <>
@@ -1078,7 +1073,7 @@ export default function HomePage() {
             <LandingSection onNavigate={navigateTo} />
           </div>
           <div className="flow-section" ref={(el) => { sectionRefs.current[1] = el; }}>
-            <RegisterSection onAfterRegister={handleAfterRegister} />
+            <RegisterSection onAfterRegister={goToBiblioteca} />
           </div>
           <div className="flow-section" ref={(el) => { sectionRefs.current[2] = el; }}>
             <LibrarySection onRegister={() => navigateTo(1)} refreshKey={libraryRefreshKey} />
