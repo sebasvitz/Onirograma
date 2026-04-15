@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import BibliotecaNav from "@/components/BibliotecaNav";
 import "./globals.css";
 import "./globals.scss";
 import { Analytics } from '@vercel/analytics/react'
@@ -29,9 +30,7 @@ export default function RootLayout({
             <Link href="/" className="site-nav-link">
               Inicio
             </Link>
-            <Link href="/cases" className="site-nav-link">
-              Biblioteca
-            </Link>
+            <BibliotecaNav />
           </nav>
         </header>
 
